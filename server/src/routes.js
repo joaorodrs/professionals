@@ -1,9 +1,8 @@
 import express from 'express'
 
+import { ProfessionalType } from './controllers/ProfessionalType.js'
+const professionalType = new ProfessionalType()
+
 export const router = express.Router()
 
-router.get('/professional', (req, res) => {
-  const { message } = req.body
-
-  return res.json({ message })
-})
+router.post('/professional-type', professionalType.create)
