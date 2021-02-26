@@ -2,8 +2,8 @@ import express from 'express'
 
 export const router = express.Router()
 
-router.get('/', (req, res) => {
-  console.log(req.body)
+router.get('/professional', (req, res) => {
+  const { message } = req.body
 
-  return res.json({ message: 'Hello World!' })
+  return res.json({ message })
 })
