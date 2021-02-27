@@ -6,5 +6,5 @@ const professionalType = new ProfessionalTypeController()
 export const router = express.Router()
 
 router.post('/professional-type', professionalType.create)
-
 router.get('/professional-type', professionalType.index)
+router.put('/professional-type', professionalType.update)
