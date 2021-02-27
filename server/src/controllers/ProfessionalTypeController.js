@@ -1,6 +1,6 @@
-import { db as connection } from '../database/connection.js'
+import db from '../app/models/index.js'
 
-export class ProfessionalType {
+export class ProfessionalTypeController {
   async create(request, response) {
     const { description, phoneNumber, situation } = request.body
 
@@ -12,8 +12,22 @@ export class ProfessionalType {
       return response.status(400).json({ error: 'Situation field missing' })
     }
 
+    await db.ProfessionalType.sync({ force: true })
+
+    const professionalType = await db.ProfessionalType.create({
+      description,
+      phone_number: phoneNumber,
+      situation
+    })
+
     return response.status(201).json({ success: 'Professional type created', data: {
-      description, phoneNumber, situation
-    } })
+      id: professionalType.id, description, phoneNumber, situation
+    }})
+  }
+
+  async index(request, response) {
+    const professionalTypes = await db.ProfessionalType.findAll()
+
+    return response.status(200).json({ professionalTypes })
   }
 }

@@ -1,6 +1,5 @@
 import request from 'supertest'
 import { app } from '../../app.js'
-import { db as connection } from '../../database/connection.js'
 
 describe('POST /professional-type', () => {
   // beforeEach(async () => await connection.migrate.latest())

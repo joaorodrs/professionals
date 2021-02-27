@@ -1,8 +1,10 @@
 import express from 'express'
 
-import { ProfessionalType } from './controllers/ProfessionalType.js'
-const professionalType = new ProfessionalType()
+import { ProfessionalTypeController } from './controllers/ProfessionalTypeController.js'
+const professionalType = new ProfessionalTypeController()
 
 export const router = express.Router()
 
 router.post('/professional-type', professionalType.create)
+
+router.get('/professional-type', professionalType.index)

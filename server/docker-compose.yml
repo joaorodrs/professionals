@@ -4,7 +4,7 @@ services:
   app:
     build: .
     container_name: 'maxxi-test-server'
-    command: sh -c "npm run migrate && npm start"
+    command: sh -c "npm start"
     ports:
       - 3333:3333
     volumes:

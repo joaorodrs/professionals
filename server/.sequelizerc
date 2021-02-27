@@ -1,6 +1,8 @@
-module.exports = {
-  config: './src/config/database',
-  'models-path': './src/app/models',
-  'seeders-path': './src/database/seeders',
-  'migrations-path': './src/database/migrations',
+import path from 'path'
+
+export default {
+  'config': path.resolve('src', 'config', 'config.cjs'),
+  'models-path': path.resolve('src', 'app', 'models'),
+  'seeders-path': path.resolve('src', 'database', 'seeders'),
+  'migrations-path': path.resolve('src', 'database', 'migrations'),
 }
