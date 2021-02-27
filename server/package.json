@@ -4,12 +4,13 @@
   "main": "index.js",
   "license": "MIT",
   "scripts": {
-    "dev": "SET NODE_ENV=development && nodemon --experimental-json-modules src/server.js",
-    "start": "node src/server.js",
+    "dev": "cross-env NODE_ENV=development nodemon --experimental-json-modules src/server.js",
+    "start": "cross-env NODE_ENV=production node src/server.js",
     "test": "jest --verbose"
   },
   "dependencies": {
     "cors": "^2.8.5",
+    "cross-env": "^7.0.3",
     "express": "^4.17.1",
     "pg": "^8.5.1",
     "sequelize": "^5.22.3",

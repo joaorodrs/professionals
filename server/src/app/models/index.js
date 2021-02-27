@@ -5,7 +5,14 @@ import ProfessionalTypeModel from './ProfessionalType.js'
 
 // const basename = path.basename(__filename)
 const env = process.env.NODE_ENV || 'development'
-const config = dbConfig['development']
+let config
+if (env === 'development') {
+  config = dbConfig['development']
+} else if (env === 'test') {
+  config = dbConfig['test']
+} else {
+  config = dbConfig['production']
+}
 const db = {}
 
 const sequelize = new Sequelize(config.database, config.username, config.password, config)

@@ -12,13 +12,18 @@ export class ProfessionalTypeController {
       return response.status(400).json({ error: 'Situation field missing' })
     }
 
-    await db.ProfessionalType.sync({ force: true })
+    await db.ProfessionalType.sync()
 
-    const professionalType = await db.ProfessionalType.create({
-      description,
-      phone_number: phoneNumber,
-      situation
-    })
+    try {
+      var professionalType = await db.ProfessionalType.create({
+        description,
+        phoneNumber: phoneNumber,
+        situation
+      })
+    } catch(err) {
+      return response.status(500).json({ error: err })
+    }
+    
 
     return response.status(201).json({ success: 'Professional type created', data: {
       id: professionalType.id, phoneNumber: professionalType.phone_number, description: professionalType.description, situation: professionalType.situation
@@ -26,13 +31,24 @@ export class ProfessionalTypeController {
   }
 
   async index(request, response) {
-    const professionalTypes = await db.ProfessionalType.findAll()
+    await db.ProfessionalType.sync()
 
-    return response.status(200).json(professionalTypes)
+    try {
+      const professionalTypes = await db.ProfessionalType.findAll()
+
+      return response.status(200).json(professionalTypes)
+    } catch(err) {
+      return response.status(500).json({ error: err })
+    }
   }
 
   async update(request, response) {
     const { description, phoneNumber, situation } = request.body
+    const { id } = request.headers
+
+    if (!id) {
+      return response.status(400).json({ error: 'ID must be given' })
+    }
 
     if (!description && !situation) {
       return response.status(400).json({ error: 'Description and situation fields missing' })
@@ -42,18 +58,36 @@ export class ProfessionalTypeController {
       return response.status(400).json({ error: 'Situation field missing' })
     }
 
-    await db.ProfessionalType.sync()
-
-    await db.ProfessionalType.update({
+    const [ rowsUpdated ] = await db.ProfessionalType.update({
       description,
-      phone_number: phoneNumber,
+      phoneNumber: phoneNumber,
       situation
     }, {
       where: {
-        description: 'Developer'
+        id
       }
     })
 
-    return response.status(200).json({ success: 'Professional type updated', data: { description, phoneNumber, situation }})
+    return response.status(200).json({ success: 'Professional type updated', data: { rowsUpdated } })
+  }
+
+  async delete(request, response) {
+    const { id } = request.headers
+
+    if (!id) {
+      return response.status(400).json({ error: 'ID must be given' })
+    }
+
+    try {
+      await db.ProfessionalType.destroy({
+        where: {
+          id
+        }
+      })
+    } catch(err) {
+      return response.status(500).json({ error: err })
+    }
+
+    return response.status(200).json({ success: 'Professional type deleted' })
   }
 }
