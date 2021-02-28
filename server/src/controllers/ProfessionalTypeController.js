@@ -57,7 +57,7 @@ export class ProfessionalTypeController {
       })
 
       if (professionalTypes.length === 0) {
-        return response.status(404).json({ error: 'No found professionals' })
+        return response.status(404).json({ error: 'Professional type does not exists in the database' })
       }
 
       const professionalsWithProfessionalType = await db.Professional.findAll({

@@ -186,7 +186,7 @@ describe('GET /professional-type/professionals', () => {
 
     expect(response.status).toBe(404)
     expect(response.body).toHaveProperty('error')
-    expect(response.body.error).toBe('No found professionals')
+    expect(response.body.error).toBe('Professional type does not exists in the database')
 
     done()
   })
