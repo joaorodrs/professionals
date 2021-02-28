@@ -44,7 +44,7 @@ describe('POST /professional', () => {
 describe('PUT /professional', () => {
   it('should update a professional in the database', async done => {
     const response = await request(app)
-      .put('/professional')
+      .put('/professional/1')
       .send({
         name: 'João Paulo Alencar Rodrigues',
         phoneNumber: 'other_phone_number',
@@ -52,7 +52,6 @@ describe('PUT /professional', () => {
         professionalType: 'Developer',
         situation: true
       })
-      .set('id', 1)
 
     expect(response.status).toBe(200)
     expect(response.body).toHaveProperty('success')
@@ -113,8 +112,7 @@ describe('GET /professional', () => {
 describe('DELETE /professional', () => {
   it('should delete the professional with id 1', async done => {
     const response = await request(app)
-      .delete('/professional')
-      .set('id', 1)
+      .delete('/professional/1')
 
     expect(response.status).toBe(200)
     expect(response.body).toHaveProperty('success')

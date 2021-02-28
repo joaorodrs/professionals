@@ -8,25 +8,29 @@ export class ProfessionalController {
       return response.status(400).json({ error: 'Insufficient fields' })
     }
 
+    await db.ProfessionalType.sync()
+
     try {
-      var professional = await db.Professional.create({
+      const professional = await db.Professional.create({
         name,
         phoneNumber,
         email,
         professionalType,
         situation
       })
+
+      return response.status(201).json({
+        success: 'Professional created',
+        data: professional
+      })
     } catch(err) {
       return response.status(500).json({ error: err })
     }
-
-    return response.status(201).json({
-      success: 'Professional created',
-      data: professional
-    })
   }
 
   async index(request, response) {
+    await db.ProfessionalType.sync()
+
     try {
       const professionals = await db.Professional.findAll()
 
@@ -38,11 +42,13 @@ export class ProfessionalController {
 
   async update(request, response) {
     const { name, phoneNumber, email, professionalType, situation } = request.body
-    const { id } = request.headers
+    const { id } = request.params
 
     if (!name || !email || !professionalType || !situation) {
       return response.status(400).json({ error: 'Insufficient fields' })
     }
+
+    await db.ProfessionalType.sync()
 
     try {
       await db.Professional.update({
@@ -52,21 +58,23 @@ export class ProfessionalController {
         professionalType,
         situation
       }, { where: { id } })
+
+      return response.status(200).json({
+        success: 'Professional updated',
+      })
     } catch(err) {
       return response.status(500).json({ error: err })
     }
-
-    return response.status(200).json({
-      success: 'Professional updated',
-    })
   }
 
   async delete(request, response) {
-    const { id } = request.headers
+    const { id } = request.params
 
     if (!id) {
       return response.status(400).json({ error: 'ID must be given' })
     }
+
+    await db.ProfessionalType.sync()
 
     try {
       await db.Professional.destroy({
@@ -74,10 +82,10 @@ export class ProfessionalController {
           id
         }
       })
+
+      return response.status(200).json({ success: 'Professional deleted' })
     } catch(err) {
       return response.status(500).json({ error: err })
     }
-
-    return response.status(200).json({ success: 'Professional deleted' })
   }
 }

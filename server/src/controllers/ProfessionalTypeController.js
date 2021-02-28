@@ -2,7 +2,7 @@ import db from '../app/models/index.js'
 
 export class ProfessionalTypeController {
   async create(request, response) {
-    const { description, phone_number, situation } = request.body
+    const { description, phoneNumber, situation } = request.body
 
     if (!description && !situation) {
       return response.status(400).json({ error: 'Description and situation fields missing' })
@@ -15,17 +15,16 @@ export class ProfessionalTypeController {
     await db.ProfessionalType.sync()
 
     try {
-      var professionalType = await db.ProfessionalType.create({
+      const professionalType = await db.ProfessionalType.create({
         description,
-        phone_number,
+        phoneNumber,
         situation
       })
+
+      return response.status(201).json({ success: 'Professional type created', data: professionalType})
     } catch(err) {
       return response.status(500).json({ error: err })
     }
-    
-
-    return response.status(201).json({ success: 'Professional type created', data: professionalType})
   }
 
   async index(request, response) {
@@ -40,9 +39,42 @@ export class ProfessionalTypeController {
     }
   }
 
+  async indexProfessionals(request, response) {
+    const { professionalType } = request.body
+
+    if (!professionalType) {
+      return response.status(400).json({ error: 'Professional type must be given' })
+    }
+
+    await db.Professional.sync()
+    await db.ProfessionalType.sync()
+
+    try {
+      const professionalTypes = await db.ProfessionalType.findAll({
+        where: {
+          description: professionalType
+        }
+      })
+
+      if (professionalTypes === [] || !professionalTypes) {
+        return response.status(404).json({ error: 'No found professionals' })
+      }
+
+      const professionalsWithProfessionalType = await db.Professional.findAll({
+        where: {
+          professionalType
+        }
+      })
+
+      return response.status(200).json(professionalsWithProfessionalType)
+    } catch(err) {
+      return response.status(500).json({ error: err })
+    }
+  }
+
   async update(request, response) {
-    const { description, phone_number, situation } = request.body
-    const { id } = request.headers
+    const { description, phoneNumber, situation } = request.body
+    const { id } = request.params
 
     if (!id) {
       return response.status(400).json({ error: 'ID must be given' })
@@ -56,9 +88,11 @@ export class ProfessionalTypeController {
       return response.status(400).json({ error: 'Situation field missing' })
     }
 
+    await db.ProfessionalType.sync()
+
     const [ rowsUpdated ] = await db.ProfessionalType.update({
       description,
-      phone_number,
+      phoneNumber,
       situation
     }, {
       where: {
@@ -70,11 +104,13 @@ export class ProfessionalTypeController {
   }
 
   async delete(request, response) {
-    const { id } = request.headers
+    const { id } = request.params
 
     if (!id) {
       return response.status(400).json({ error: 'ID must be given' })
     }
+
+    await db.ProfessionalType.sync()
 
     try {
       await db.ProfessionalType.destroy({

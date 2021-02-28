@@ -9,11 +9,13 @@ const professional = new ProfessionalController()
 export const router = express.Router()
 
 router.post('/professional-type', professionalType.create)
-router.get('/professional-type', professionalType.index)
-router.put('/professional-type', professionalType.update)
-router.delete('/professional-type', professionalType.delete)
+router.get('/professional-type/', professionalType.index)
+router.put('/professional-type/:id', professionalType.update)
+router.delete('/professional-type/:id', professionalType.delete)
+
+router.get('/professional-type/professionals', professionalType.indexProfessionals)
 
 router.post('/professional', professional.create)
 router.get('/professional', professional.index)
-router.put('/professional', professional.update)
-router.delete('/professional', professional.delete)
+router.put('/professional/:id', professional.update)
+router.delete('/professional/:id', professional.delete)

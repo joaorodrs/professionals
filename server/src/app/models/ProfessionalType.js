@@ -1,7 +1,7 @@
 const createModel = (sequelize, DataTypes) => {
   const ProfessionalType = sequelize.define('ProfessionalType', {
     description: DataTypes.STRING,
-    phone_number: DataTypes.STRING,
+    phoneNumber: DataTypes.STRING,
     situation: DataTypes.BOOLEAN
   }, {})
 
