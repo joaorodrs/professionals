@@ -135,4 +135,15 @@ describe('DELETE /professional-type', () => {
 
     done()
   })
+
+  it('should return only one professional type (because one was deleted)', async done => {
+    const response = await request(app)
+      .get('/professional-type')
+
+    expect(response.status).toBe(200)
+    expect(response.body).not.toBe(null)
+    expect(response.body.length).toBe(1)
+
+    done()
+  })
 })

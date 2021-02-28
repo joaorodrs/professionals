@@ -122,4 +122,15 @@ describe('DELETE /professional', () => {
 
     done()
   })
+
+  it('should return only one professional (because one was deleted)', async done => {
+    const response = await request(app)
+      .get('/professional')
+
+    expect(response.status).toBe(200)
+    expect(response.body).not.toBe(null)
+    expect(response.body.length).toBe(1)
+
+    done()
+  })
 })

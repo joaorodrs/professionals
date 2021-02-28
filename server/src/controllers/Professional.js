@@ -60,4 +60,24 @@ export class ProfessionalController {
       success: 'Professional updated',
     })
   }
+
+  async delete(request, response) {
+    const { id } = request.headers
+
+    if (!id) {
+      return response.status(400).json({ error: 'ID must be given' })
+    }
+
+    try {
+      await db.Professional.destroy({
+        where: {
+          id
+        }
+      })
+    } catch(err) {
+      return response.status(500).json({ error: err })
+    }
+
+    return response.status(200).json({ success: 'Professional deleted' })
+  }
 }
