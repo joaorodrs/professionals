@@ -2,7 +2,7 @@ import db from '../app/models/index.js'
 
 export class ProfessionalTypeController {
   async create(request, response) {
-    const { description, phoneNumber, situation } = request.body
+    const { description, phone_number, situation } = request.body
 
     if (!description && !situation) {
       return response.status(400).json({ error: 'Description and situation fields missing' })
@@ -17,7 +17,7 @@ export class ProfessionalTypeController {
     try {
       var professionalType = await db.ProfessionalType.create({
         description,
-        phoneNumber: phoneNumber,
+        phone_number,
         situation
       })
     } catch(err) {
@@ -43,7 +43,7 @@ export class ProfessionalTypeController {
   }
 
   async update(request, response) {
-    const { description, phoneNumber, situation } = request.body
+    const { description, phone_number, situation } = request.body
     const { id } = request.headers
 
     if (!id) {
@@ -60,7 +60,7 @@ export class ProfessionalTypeController {
 
     const [ rowsUpdated ] = await db.ProfessionalType.update({
       description,
-      phoneNumber: phoneNumber,
+      phone_number,
       situation
     }, {
       where: {

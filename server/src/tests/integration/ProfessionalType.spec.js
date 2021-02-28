@@ -60,7 +60,7 @@ describe('PUT /professional-type', () => {
   it('should update a professional type in the database', async done => {
     const newData = {
       description: 'Not a developer',
-      phoneNumber: '5593991384250',
+      phone_number: '5593991384250',
       situation: true
     }
     
@@ -85,10 +85,10 @@ describe('PUT /professional-type', () => {
 
     expect(response.status).toBe(200)
     expect(response.body[0]).toHaveProperty('description')
-    expect(response.body[0]).toHaveProperty('phoneNumber')
+    expect(response.body[0]).toHaveProperty('phone_number')
     expect(response.body[0]).toHaveProperty('situation')
     expect(response.body[0].description).toBe('Not a developer')
-    expect(response.body[0].phoneNumber).toBe('5593991384250')
+    expect(response.body[0].phone_number).toBe('5593991384250')
 
     done()
   })

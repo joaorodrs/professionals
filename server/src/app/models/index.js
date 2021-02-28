@@ -2,10 +2,12 @@ import Sequelize from 'sequelize'
 import dbConfig from '../../config/config.cjs'
 
 import ProfessionalTypeModel from './ProfessionalType.js'
+import ProfessionalModel from './Professional.js'
 
-// const basename = path.basename(__filename)
 const env = process.env.NODE_ENV || 'development'
+
 let config
+
 if (env === 'development') {
   config = dbConfig['development']
 } else if (env === 'test') {
@@ -18,6 +20,7 @@ const db = {}
 const sequelize = new Sequelize(config.database, config.username, config.password, config)
 
 const models = [
+  ProfessionalModel(sequelize, Sequelize),
   ProfessionalTypeModel(sequelize, Sequelize)
 ]
 

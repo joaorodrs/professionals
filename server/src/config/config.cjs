@@ -15,7 +15,8 @@ module.exports = {
   },
   test: {
     "dialect": "sqlite",
-    "storage": "./src/database/test.sqlite"
+    "storage": "./src/database/test.sqlite",
+    "logging": false
   },
   development: {
     "dialect": "sqlite",

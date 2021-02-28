@@ -1,9 +1,12 @@
-export default (sequelize, DataTypes) => {
-  const ProfessionalType = sequelize.define("ProfessionalType", {
+const createModel = (sequelize, DataTypes) => {
+  const ProfessionalType = sequelize.define('ProfessionalType', {
     description: DataTypes.STRING,
-    phoneNumber: DataTypes.STRING,
+    phone_number: DataTypes.STRING,
     situation: DataTypes.BOOLEAN
-  })
-
-  return ProfessionalType
-}
+  }, {});
+  ProfessionalType.associate = function(models) {
+    // associations can be defined here
+  };
+  return ProfessionalType;
+};
+export default createModel;
