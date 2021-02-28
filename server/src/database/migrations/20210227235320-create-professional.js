@@ -11,7 +11,7 @@ export default {
         type: Sequelize.STRING,
         allowNull: false
       },
-      phoneNumber: {
+      phone_number: {
         type: Sequelize.STRING,
         allowNull: false
       },
@@ -19,13 +19,9 @@ export default {
         type: Sequelize.STRING,
         allowNull: false
       },
-      professionalType: {
+      professional_type: {
         type: Sequelize.STRING,
         allowNull: false,
-        references: {
-          model: 'ProfessionalType',
-          key: 'description'
-        }
       },
       situation: {
         type: Sequelize.BOOLEAN,

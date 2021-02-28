@@ -79,7 +79,7 @@ describe('PUT /professional-type', () => {
     done()
   })
 
-  it('should return the professional updated', async done => {
+  it('should return the professional type updated', async done => {
     const response = await request(app)
       .get('/professional-type')
 
@@ -124,7 +124,7 @@ describe('GET /professional-type', () => {
 })
 
 describe('DELETE /professional-type', () => {
-  it('should delete the database with id 1', async done => {
+  it('should delete the professional type with id 1', async done => {
     const response = await request(app)
       .delete('/professional-type')
       .set('id', 1)

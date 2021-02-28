@@ -14,3 +14,5 @@ router.put('/professional-type', professionalType.update)
 router.delete('/professional-type', professionalType.delete)
 
 router.post('/professional', professional.create)
+router.get('/professional', professional.index)
+router.put('/professional', professional.update)

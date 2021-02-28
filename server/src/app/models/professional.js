@@ -6,9 +6,8 @@ const createModel = (sequelize, DataTypes) => {
     professionalType: DataTypes.STRING,
     situation: DataTypes.BOOLEAN
   }, {})
-  Professional.associate = model => {
-    Professional.belongsTo(models.ProfessionalType, { foreignKey: 'professionalType', as: 'professionalType' })
-  }
+  
   return Professional
 }
+
 export default createModel

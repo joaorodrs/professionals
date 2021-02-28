@@ -25,9 +25,7 @@ export class ProfessionalTypeController {
     }
     
 
-    return response.status(201).json({ success: 'Professional type created', data: {
-      id: professionalType.id, phoneNumber: professionalType.phone_number, description: professionalType.description, situation: professionalType.situation
-    }})
+    return response.status(201).json({ success: 'Professional type created', data: professionalType})
   }
 
   async index(request, response) {
