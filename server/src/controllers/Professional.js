@@ -8,7 +8,7 @@ export class ProfessionalController {
       return response.status(400).json({ error: 'Insufficient fields' })
     }
 
-    await db.ProfessionalType.sync()
+    await db.Professional.sync()
 
     try {
       const professional = await db.Professional.create({
@@ -29,7 +29,7 @@ export class ProfessionalController {
   }
 
   async index(request, response) {
-    await db.ProfessionalType.sync()
+    await db.Professional.sync()
 
     try {
       const professionals = await db.Professional.findAll()
@@ -48,7 +48,7 @@ export class ProfessionalController {
       return response.status(400).json({ error: 'Insufficient fields' })
     }
 
-    await db.ProfessionalType.sync()
+    await db.Professional.sync()
 
     try {
       await db.Professional.update({
@@ -74,7 +74,7 @@ export class ProfessionalController {
       return response.status(400).json({ error: 'ID must be given' })
     }
 
-    await db.ProfessionalType.sync()
+    await db.Professional.sync()
 
     try {
       await db.Professional.destroy({

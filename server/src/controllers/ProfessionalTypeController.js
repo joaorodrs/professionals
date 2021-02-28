@@ -56,7 +56,7 @@ export class ProfessionalTypeController {
         }
       })
 
-      if (professionalTypes === [] || !professionalTypes) {
+      if (professionalTypes.length === 0) {
         return response.status(404).json({ error: 'No found professionals' })
       }
 

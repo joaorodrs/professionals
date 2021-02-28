@@ -179,14 +179,14 @@ describe('GET /professional-type/professionals', () => {
 
   it('should return an error (404 Not Found) and an error message', async done => {
     const response = await request(app)
-      .post('/professional-type/professionals')
+      .get('/professional-type/professionals')
       .send({
         professionalType: 'inexistent_professional_type'
       })
 
     expect(response.status).toBe(404)
-    // expect(response.body).toHaveProperty('error')
-    // expect(response.body.error).toBe('No found professionals')
+    expect(response.body).toHaveProperty('error')
+    expect(response.body.error).toBe('No found professionals')
 
     done()
   })
