@@ -64,7 +64,7 @@ export const Home = () => {
         </Toolbar>
       </AppBar>
       <Drawer showDrawer={showDrawer} toggleDrawer={toggleDrawer} toggleComponent={toggleComponent} />
-      <Container style={{ marginTop: 100, display: 'flex', alignItems: 'center' , justifyContent: 'center'}}>
+      <Container style={{ marginTop: 100 }}>
         {component === 'Tipos de profissional' ? (
           <TrackVisibility>
             <ProfessionalTypes toggleLoading={toggleLoading} loading={loading} />
