@@ -1,14 +1,25 @@
 import React, { useState } from 'react'
 
-import { AppBar, Toolbar, IconButton, Typography, Drawer, Button } from '@material-ui/core'
-import { Menu, GitHub } from '@material-ui/icons'
+import { AppBar, Toolbar, IconButton, Typography, Button, Container } from '@material-ui/core'
+import { Menu } from '@material-ui/icons'
+
+import { Drawer } from '../components/Drawer'
 
 export const Home = () => {
-  const [component, setComponent] = useState('Professionals')
+  const [component, setComponent] = useState('Tipos de profissional')
   const [showDrawer, setShowDrawer] = useState(false)
 
   function toggleDrawer() {
     setShowDrawer(!showDrawer)
+  }
+
+  function toggleComponent(componentName) {
+    setComponent(componentName)
+    setShowDrawer(false)
+  }
+
+  function openProjectDetails() {
+    window.open('https://github.com/joaorodrs/professional-finding', '_blank')
   }
 
   return (
@@ -24,18 +35,19 @@ export const Home = () => {
             <Menu />
           </IconButton>
           <Typography variant="h6">
-            Componente exibido
+            {component}
           </Typography>
-          <Button style={{ marginLeft: 'auto' }} color="inherit">Sobre</Button>
+          <Button
+            style={{ marginLeft: 'auto' }}
+            color="inherit"
+            onClick={openProjectDetails}
+          >
+            Sobre
+          </Button>
         </Toolbar>
       </AppBar>
-      <Drawer
-        anchor="left"
-        open={showDrawer}
-        onClose={toggleDrawer}
-      >
-        Something in the drawer
-      </Drawer>
+      <Drawer showDrawer={showDrawer} toggleDrawer={toggleDrawer} toggleComponent={toggleComponent} />
+      <Container></Container>
     </div>
   )
 }
