@@ -15,6 +15,7 @@ import { Menu } from '@material-ui/icons'
 
 import { Drawer } from '../components/Drawer'
 import { ProfessionalTypes } from '../components/ProfessionalTypes'
+import { Professionals } from '../components/Professionals'
 
 export const Home = () => {
   const [component, setComponent] = useState('Tipos de profissional')
@@ -70,7 +71,9 @@ export const Home = () => {
             <ProfessionalTypes toggleLoading={toggleLoading} loading={loading} />
           </TrackVisibility>
         ) : (
-          <h1>Something</h1>
+          <TrackVisibility>
+            <Professionals toggleLoading={toggleLoading} loading={loading} />
+          </TrackVisibility>
         )}
       </Container>
     </div>

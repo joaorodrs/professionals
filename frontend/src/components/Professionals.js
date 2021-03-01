@@ -17,8 +17,11 @@ import {
   DialogTitle,
   DialogContent,
   TextField,
-  Button
+  Button,
+  MenuItem
 } from '@material-ui/core'
+
+import { phoneMask } from '../utils/masks'
 
 import { NoSim, Add } from '@material-ui/icons'
 
@@ -26,20 +29,37 @@ import { Alert } from '@material-ui/lab'
 
 import { api } from '../services/api'
 
-export const ProfessionalTypes = ({ toggleLoading, isVisible, loading }) => {
+import formatString from 'format-string-by-pattern';
+
+export const Professionals = ({ toggleLoading, isVisible, loading }) => {
   const [data, setData] = useState([])
+  const [professionalTypes, setProfessionalTypes] = useState([])
   const [error, setError] = useState(false)
   const [showErrorAlert, setShowErrorAlert] = useState(false)
 
-  const [showCreateProfessionalType, setShowCreateProfessionalType] = useState(false)
+  const [showCreateProfessional, setShowCreateProfessional] = useState(false)
+
+  const [phoneNumber, setPhoneNumber] = useState('')
+
+  function format(mask) {
+    return {
+      format: value => {
+        if (!value) return ''
+        return formatString(mask, value)
+      },
+      parse: fieldValue => fieldValue.replace(/[^\d]/g, ''),
+    }
+  }
 
   async function loadData() {
     toggleLoading(true)
 
     try {
-      const response = await api.get('professional-type', { timeout: 10000 })
+      const response = await api.get('professional', { timeout: 10000 })
+      const professionalTypeResponse = await api.get('professional-type', { timeout: 10000 })
 
       setData(response.data)
+      setProfessionalTypes(professionalTypeResponse.data)
       toggleLoading(false)
       setShowErrorAlert(false)
     } catch(err) {
@@ -50,6 +70,8 @@ export const ProfessionalTypes = ({ toggleLoading, isVisible, loading }) => {
   }
 
   useEffect(() => loadData(), [isVisible])
+
+  function onSubmit() {}
   
   return (
     <>
@@ -64,8 +86,10 @@ export const ProfessionalTypes = ({ toggleLoading, isVisible, loading }) => {
             <TableHead>
               <TableRow>
                 <TableCell>ID</TableCell>
-                <TableCell align="center">Descrição</TableCell>
+                <TableCell align="center">Nome</TableCell>
                 <TableCell align="center">Telefone</TableCell>
+                <TableCell align="center">Email</TableCell>
+                <TableCell align="center">Tipo de profissional</TableCell>
                 <TableCell align="center">Situação</TableCell>
               </TableRow>
             </TableHead>
@@ -75,8 +99,10 @@ export const ProfessionalTypes = ({ toggleLoading, isVisible, loading }) => {
                   <TableCell component="th" scope="row">
                     {item.id}
                   </TableCell>
-                  <TableCell align="center">{item.description}</TableCell>
+                  <TableCell align="center">{item.name}</TableCell>
                   <TableCell align="center">{item.phoneNumber}</TableCell>
+                  <TableCell align="center">{item.email}</TableCell>
+                  <TableCell align="center">{item.professionalType}</TableCell>
                   <TableCell align="center">{item.situation ? 'OK' : 'Irregular'}</TableCell>
                 </TableRow>
               ))}
@@ -91,29 +117,46 @@ export const ProfessionalTypes = ({ toggleLoading, isVisible, loading }) => {
           elevation={6}
           variant="filled"
         >
-          Não foi possível carregar os tipos de profissional
+          Não foi possível carregar os profissionais
         </Alert>
       </Snackbar>
-      <Tooltip title="Criar tipo de profissional" aria-label="criar">
+      <Tooltip title="Criar profissional" aria-label="criar">
         <Fab
           color="primary"
           style={{ position: 'absolute', bottom: 50, right: 50 }}
-          onClick={() => setShowCreateProfessionalType(true)}
+          onClick={() => setShowCreateProfessional(true)}
         >
           <Add />
         </Fab>
       </Tooltip>
       <Dialog
-        open={showCreateProfessionalType}
-        onClose={() => setShowCreateProfessionalType(false)}
+        open={showCreateProfessional}
+        onClose={() => setShowCreateProfessional(false)}
         aria-labelledby="criar-tipo-de-profissional"
       >
-        <DialogTitle>Criar tipo de profissional</DialogTitle>
+        <DialogTitle>Criar profissional</DialogTitle>
         <DialogContent style={{ width: 250 }}>
-          <form noValidate style={{ display: 'flex', flexDirection: 'column' }}>
-            <TextField label="Descrição" />
-            <TextField label="Telefone" />
-            <TextField label="Descrição" />
+          <form noValidate style={{ display: 'flex', flexDirection: 'column' }} autoComplete="off">
+            <TextField required label="Nome" />
+            <TextField
+              label="Telefone"
+              value={phoneNumber}
+              onChange={e => setPhoneNumber(phoneMask(e.target.value))}
+            />
+            <TextField required label="Email" />
+            <TextField
+              required
+              select
+              label="Tipo de profissional"
+              variant="outlined"
+              style={{ marginTop: 20 }}
+            >
+              {professionalTypes.map(professionalType => (
+                <MenuItem key={professionalType.id} value={professionalType.description}>
+                  {professionalType.description}
+                </MenuItem>
+              ))}
+            </TextField>
             <Button
               variant="contained"
               color="primary"
