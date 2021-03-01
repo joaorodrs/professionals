@@ -1,4 +1,5 @@
 import React, { useState } from 'react'
+import TrackVisibility from 'react-on-screen'
 
 import {
   AppBar,
@@ -40,7 +41,7 @@ export const Home = () => {
   return (
     <div>
       <AppBar position="fixed">
-        {loading && <LinearProgress style={{ width: '100vw' }} />}
+        {loading && <LinearProgress style={{ width: '100vw', position: 'absolute' }} />}
         <Toolbar>
           <IconButton
             edge="start"
@@ -63,8 +64,14 @@ export const Home = () => {
         </Toolbar>
       </AppBar>
       <Drawer showDrawer={showDrawer} toggleDrawer={toggleDrawer} toggleComponent={toggleComponent} />
-      <Container>
-        <ProfessionalTypes toggleLoading={toggleLoading} />
+      <Container style={{ marginTop: 100, display: 'flex', alignItems: 'center' , justifyContent: 'center'}}>
+        {component === 'Tipos de profissional' ? (
+          <TrackVisibility>
+            <ProfessionalTypes toggleLoading={toggleLoading} loading={loading} />
+          </TrackVisibility>
+        ) : (
+          <h1>Something</h1>
+        )}
       </Container>
     </div>
   )
