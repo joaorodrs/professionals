@@ -1,8 +1,14 @@
 import { Home } from "./pages/Home"
+import { ThemeProvider } from "@material-ui/core/styles"
+
+import { theme } from './config/theme'
+import './styles/global.css'
 
 const App = () => {
   return (
-    <Home />
+    <ThemeProvider theme={theme}>
+      <Home />
+    </ThemeProvider>
   )
 }
 

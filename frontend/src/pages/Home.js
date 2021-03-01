@@ -1,13 +1,24 @@
 import React, { useState } from 'react'
 
-import { AppBar, Toolbar, IconButton, Typography, Button, Container } from '@material-ui/core'
+import {
+  AppBar,
+  Toolbar,
+  IconButton,
+  Typography,
+  Button,
+  Container,
+  LinearProgress
+} from '@material-ui/core'
+
 import { Menu } from '@material-ui/icons'
 
 import { Drawer } from '../components/Drawer'
+import { ProfessionalTypes } from '../components/ProfessionalTypes'
 
 export const Home = () => {
   const [component, setComponent] = useState('Tipos de profissional')
   const [showDrawer, setShowDrawer] = useState(false)
+  const [loading, setLoading] = useState(false)
 
   function toggleDrawer() {
     setShowDrawer(!showDrawer)
@@ -18,6 +29,10 @@ export const Home = () => {
     setShowDrawer(false)
   }
 
+  function toggleLoading(state) {
+    setLoading(state)
+  }
+
   function openProjectDetails() {
     window.open('https://github.com/joaorodrs/professional-finding', '_blank')
   }
@@ -25,6 +40,7 @@ export const Home = () => {
   return (
     <div>
       <AppBar position="fixed">
+        {loading && <LinearProgress style={{ width: '100vw' }} />}
         <Toolbar>
           <IconButton
             edge="start"
@@ -47,7 +63,9 @@ export const Home = () => {
         </Toolbar>
       </AppBar>
       <Drawer showDrawer={showDrawer} toggleDrawer={toggleDrawer} toggleComponent={toggleComponent} />
-      <Container></Container>
+      <Container>
+        <ProfessionalTypes toggleLoading={toggleLoading} />
+      </Container>
     </div>
   )
 }
