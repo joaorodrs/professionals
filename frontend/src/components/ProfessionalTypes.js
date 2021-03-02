@@ -20,7 +20,8 @@ import {
   TextField,
   Button,
   IconButton,
-  DialogActions
+  DialogActions,
+  MenuItem
 } from '@material-ui/core'
 
 import { NoSim, Add, Edit, Delete } from '@material-ui/icons'
@@ -36,10 +37,12 @@ export const ProfessionalTypes = ({ toggleLoading, isVisible, loading }) => {
   const [validationError, setValidationError] = useState([])
 
   const [showCreateProfessionalType, setShowCreateProfessionalType] = useState(false)
+  const [editProfessionalType, setEditProfessionalType] = useState()
   const [deleteProfessionalType, setDeleteProfessionalType] = useState()
 
   const [description, setDescription] = useState('')
   const [phoneNumber, setPhoneNumber] = useState('')
+  const [situation, setSituation] = useState()
 
   async function loadData() {
     toggleLoading(true)
@@ -50,6 +53,7 @@ export const ProfessionalTypes = ({ toggleLoading, isVisible, loading }) => {
       setData(response.data)
       toggleLoading(false)
       setErrorAlert('')
+      setError(false)
     } catch(err) {
       setError(true)
       setErrorAlert('Não foi possível carregar os tipos de profissionais')
@@ -82,11 +86,51 @@ export const ProfessionalTypes = ({ toggleLoading, isVisible, loading }) => {
 
       loadData()
       setShowCreateProfessionalType(false)
+      setValidationError([])
+      setErrorAlert('')
     } catch(err) {
       if (err instanceof Yup.ValidationError) {
         setValidationError(err.errors)
       } else {
         setErrorAlert('Não foi possível criar tipo de profissional')
+      }
+    }
+  }
+
+  async function onSubmitEditing(event) {
+    event.preventDefault()
+    
+    const professionalTypeSchema = Yup.object().shape({
+      description: Yup
+        .string()
+        .required(),
+      phoneNumber: Yup
+        .string(),
+      situation: Yup
+        .boolean()
+        .required()
+    })
+
+    const professionalType = {
+      description,
+      phoneNumber,
+      situation
+    }
+
+    try {
+      await professionalTypeSchema.validate(professionalType, { abortEarly: false })
+
+      await api.put(`professional-type/${editProfessionalType.id}`, { ...professionalType, situation })
+
+      loadData()
+      setEditProfessionalType(false)
+      setValidationError([])
+      setErrorAlert('')
+    } catch(err) {
+      if (err instanceof Yup.ValidationError) {
+        setValidationError(err.errors)
+      } else {
+        setErrorAlert('Não foi possível editar tipo de profissional')
       }
     }
   }
@@ -98,6 +142,7 @@ export const ProfessionalTypes = ({ toggleLoading, isVisible, loading }) => {
       setSuccessAlert(`${deleteProfessionalType.description} deletado com sucesso`)
       loadData()
       setDeleteProfessionalType()
+      setErrorAlert('')
     } catch(err) {
       setErrorAlert('Não foi possível deletar o tipo de profissional')
       setDeleteProfessionalType()
@@ -135,7 +180,12 @@ export const ProfessionalTypes = ({ toggleLoading, isVisible, loading }) => {
                     <Card variant="outlined" style={{ width: 'fit-content', padding: '5px 15px' }}>{item.situation ? 'OK' : 'Irregular'}</Card>
                   </TableCell>
                   <TableCell>
-                    <IconButton >
+                    <IconButton onClick={() => {
+                      setEditProfessionalType({ id: item.id, item })
+                      setDescription(item.description)
+                      setPhoneNumber(item.phoneNumber)
+                      setSituation(item.situation)
+                    }}>
                       <Edit />
                     </IconButton>
                   </TableCell>
@@ -174,7 +224,12 @@ export const ProfessionalTypes = ({ toggleLoading, isVisible, loading }) => {
         <Fab
           color="primary"
           style={{ position: 'absolute', bottom: 50, right: 50 }}
-          onClick={() => setShowCreateProfessionalType(true)}
+          onClick={() => {
+            setShowCreateProfessionalType(true)
+            setDescription('')
+            setPhoneNumber('')
+            setSituation('')
+          }}
         >
           <Add />
         </Fab>
@@ -216,6 +271,58 @@ export const ProfessionalTypes = ({ toggleLoading, isVisible, loading }) => {
         </DialogContent>
       </Dialog>
       <Dialog
+        open={editProfessionalType}
+        onClose={() => setEditProfessionalType()}
+        aria-labelledby="criar-tipo-de-profissional"
+      >
+        <DialogTitle>Editar tipo de profissional</DialogTitle>
+        <DialogContent style={{ width: 250 }}>
+          <form
+            noValidate
+            style={{ display: 'flex', flexDirection: 'column' }}
+            autoComplete="off"
+            onSubmit={onSubmitEditing}
+          >
+            <TextField
+              required
+              label="Descrição"
+              value={description}
+              onChange={event => setDescription(event.target.value)}
+              error={!!validationError}
+            />
+            <TextField
+              label="Telefone"
+              value={phoneNumber}
+              onChange={event => setPhoneNumber(phoneMask(event.target.value))}
+            />
+            <TextField
+              required
+              select
+              label="Situação"
+              variant="outlined"
+              style={{ marginTop: 20 }}
+              onChange={event => setSituation(event.target.value)}
+              error={!!validationError}
+            >
+              <MenuItem value={true}>
+                OK
+              </MenuItem>
+              <MenuItem value={false}>
+                Irregular
+              </MenuItem>
+            </TextField>
+            <Button
+              variant="contained"
+              color="primary"
+              style={{ marginTop: 20, marginBottom: 10 }}
+              type="submit"
+            >
+              Editar
+            </Button>
+          </form>
+        </DialogContent>
+      </Dialog>
+      <Dialog
         open={!!deleteProfessionalType}
         onClose={() => setDeleteProfessionalType()}
         aria-labelledby="criar-tipo-de-profissional"
@@ -225,8 +332,8 @@ export const ProfessionalTypes = ({ toggleLoading, isVisible, loading }) => {
           <Button autoFocus variant="outlined" onClick={() => setDeleteProfessionalType()}>
             Cancelar
           </Button>
-          <Button onClick={handleDeleteProfessionalType}>
-            Confirmar
+          <Button color="secondary" onClick={handleDeleteProfessionalType}>
+            Deletar
           </Button>
         </DialogActions>
       </Dialog>

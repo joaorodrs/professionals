@@ -70,7 +70,6 @@ export const Professionals = ({ toggleLoading, isVisible, loading }) => {
       {data.length === 0 || error ? (
         <Box style={{ display: 'flex', alignItems: 'center' }}>
           <NoSim fontSize="large" color="primary" />
-          <Typography variant="h6">Sem dados por ora...</Typography>
         </Box>
       ) : loading ? null : (
         <TableContainer component={Card} style={{ width: 'fit-content' }}>
