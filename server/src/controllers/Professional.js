@@ -4,7 +4,7 @@ export class ProfessionalController {
   async create(request, response) {
     const { name, phoneNumber, email, professionalType, situation } = request.body
 
-    if (!name || !email || !professionalType || !situation) {
+    if (!name || !email || !professionalType || situation === null | undefined) {
       return response.status(400).json({ error: 'Insufficient fields' })
     }
 
@@ -44,7 +44,7 @@ export class ProfessionalController {
     const { name, phoneNumber, email, professionalType, situation } = request.body
     const { id } = request.params
 
-    if (!name || !email || !professionalType || !situation) {
+    if (!name || !email || !professionalType || situation === null | undefined) {
       return response.status(400).json({ error: 'Insufficient fields' })
     }
 
