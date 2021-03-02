@@ -73,15 +73,10 @@ export const Professionals = ({ toggleLoading, isVisible, loading }) => {
           <Typography variant="h6">Sem dados por ora...</Typography>
         </Box>
       ) : loading ? null : (
-        <TableContainer component={Card}>
+        <TableContainer component={Card} style={{ width: 'fit-content' }}>
           <Table aria-label="customized table">
             <TableHead>
               <TableRow>
-                <TableCell>
-                  <Checkbox
-                    checked={false}
-                  />
-                </TableCell>
                 <TableCell>ID</TableCell>
                 <TableCell align="center">Nome</TableCell>
                 <TableCell align="center">Telefone</TableCell>
@@ -93,11 +88,6 @@ export const Professionals = ({ toggleLoading, isVisible, loading }) => {
             <TableBody>
               {data.map(item => (
                 <TableRow tabIndex={-1} key={item.id}>
-                  <TableCell padding="checkbox" align="center">
-                    <Checkbox
-                      checked={true}
-                    />
-                  </TableCell>
                   <TableCell component="th" scope="row">
                     {item.id}
                   </TableCell>
@@ -105,9 +95,11 @@ export const Professionals = ({ toggleLoading, isVisible, loading }) => {
                   <TableCell align="center">{item.phoneNumber}</TableCell>
                   <TableCell align="center">{item.email}</TableCell>
                   <TableCell align="center">
-                    <Button>{item.professionalType}</Button>
+                    <Button variant="outlined" color="primary">{item.professionalType}</Button>
                   </TableCell>
-                  <TableCell align="center">{item.situation ? 'OK' : 'Irregular'}</TableCell>
+                  <TableCell align="center">
+                    <Card variant="outlined" style={{ width: 'fit-content', padding: '5px 15px' }}>{item.situation ? 'OK' : 'Irregular'}</Card>
+                  </TableCell>
                 </TableRow>
               ))}
             </TableBody>

@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react'
 
+import * as Yup from 'yup'
+
 import {
   TableContainer,
   Card,
@@ -9,7 +11,6 @@ import {
   TableCell,
   TableBody,
   Snackbar,
-  Typography,
   Box,
   Tooltip,
   Fab,
@@ -17,21 +18,25 @@ import {
   DialogTitle,
   DialogContent,
   TextField,
-  Button
+  Button,
+  IconButton
 } from '@material-ui/core'
 
-import { NoSim, Add } from '@material-ui/icons'
-
+import { NoSim, Add, Edit, Delete } from '@material-ui/icons'
 import { Alert } from '@material-ui/lab'
-
 import { api } from '../services/api'
+import { phoneMask } from '../utils/masks'
 
 export const ProfessionalTypes = ({ toggleLoading, isVisible, loading }) => {
   const [data, setData] = useState([])
   const [error, setError] = useState(false)
-  const [showErrorAlert, setShowErrorAlert] = useState(false)
+  const [errorAlert, setErrorAlert] = useState('')
+  const [validationError, setValidationError] = useState([])
 
   const [showCreateProfessionalType, setShowCreateProfessionalType] = useState(false)
+
+  const [description, setDescription] = useState('')
+  const [phoneNumber, setPhoneNumber] = useState('')
 
   async function loadData() {
     toggleLoading(true)
@@ -41,25 +46,56 @@ export const ProfessionalTypes = ({ toggleLoading, isVisible, loading }) => {
 
       setData(response.data)
       toggleLoading(false)
-      setShowErrorAlert(false)
+      setErrorAlert('')
     } catch(err) {
       setError(true)
-      setShowErrorAlert(true)
+      setErrorAlert('Não foi possível carregar os tipos de profissionais')
       toggleLoading(false)
     }
   }
 
   useEffect(() => loadData(), [isVisible])
+
+  async function onSubmit(event) {
+    event.preventDefault()
+    
+    const professionalTypeSchema = Yup.object().shape({
+      description: Yup
+        .string()
+        .required('Preencha este campo'),
+      phoneNumber: Yup
+        .string()
+    })
+
+    const professionalType = {
+      description,
+      phoneNumber
+    }
+
+    try {
+      await professionalTypeSchema.validate(professionalType, { abortEarly: false })
+
+      await api.post('professional-type', { ...professionalType, situation: true })
+
+      loadData()
+      setShowCreateProfessionalType(false)
+    } catch(err) {
+      if (err instanceof Yup.ValidationError) {
+        setValidationError(err.errors)
+      } else {
+        setErrorAlert('Não foi possível criar tipo de profissional')
+      }
+    }
+  }
   
   return (
     <>
       {data.length === 0 || error ? (
         <Box style={{ display: 'flex', alignItems: 'center' }}>
           <NoSim fontSize="large" color="primary" />
-          <Typography variant="h6">Sem dados por ora...</Typography>
         </Box>
       ) : loading ? null : (
-        <TableContainer component={Card}>
+        <TableContainer component={Card} style={{ width: 'fit-content' }}>
           <Table aria-label="customized table">
             <TableHead>
               <TableRow>
@@ -67,6 +103,8 @@ export const ProfessionalTypes = ({ toggleLoading, isVisible, loading }) => {
                 <TableCell align="center">Descrição</TableCell>
                 <TableCell align="center">Telefone</TableCell>
                 <TableCell align="center">Situação</TableCell>
+                <TableCell align="center" />
+                <TableCell align="center" />
               </TableRow>
             </TableHead>
             <TableBody>
@@ -77,21 +115,33 @@ export const ProfessionalTypes = ({ toggleLoading, isVisible, loading }) => {
                   </TableCell>
                   <TableCell align="center">{item.description}</TableCell>
                   <TableCell align="center">{item.phoneNumber}</TableCell>
-                  <TableCell align="center">{item.situation ? 'OK' : 'Irregular'}</TableCell>
+                  <TableCell align="center">
+                    <Card variant="outlined" style={{ width: 'fit-content', padding: '5px 15px' }}>{item.situation ? 'OK' : 'Irregular'}</Card>
+                  </TableCell>
+                  <TableCell>
+                    <IconButton>
+                      <Edit />
+                    </IconButton>
+                  </TableCell>
+                  <TableCell>
+                    <IconButton>
+                      <Delete />
+                    </IconButton>
+                  </TableCell>
                 </TableRow>
               ))}
             </TableBody>
           </Table>
         </TableContainer>
       )}
-      <Snackbar open={showErrorAlert} autoHideDuration={5000} onClose={() => setShowErrorAlert(false)}>
+      <Snackbar open={!!errorAlert} autoHideDuration={5000} onClose={() => setErrorAlert('')}>
         <Alert
-          onClose={() => setShowErrorAlert(false)}
+          onClose={() => setErrorAlert('')}
           severity="error"
           elevation={6}
           variant="filled"
         >
-          Não foi possível carregar os tipos de profissional
+          {errorAlert}
         </Alert>
       </Snackbar>
       <Tooltip title="Criar tipo de profissional" aria-label="criar">
@@ -110,14 +160,29 @@ export const ProfessionalTypes = ({ toggleLoading, isVisible, loading }) => {
       >
         <DialogTitle>Criar tipo de profissional</DialogTitle>
         <DialogContent style={{ width: 250 }}>
-          <form noValidate style={{ display: 'flex', flexDirection: 'column' }}>
-            <TextField label="Descrição" />
-            <TextField label="Telefone" />
-            <TextField label="Descrição" />
+          <form
+            noValidate
+            style={{ display: 'flex', flexDirection: 'column' }}
+            autoComplete="off"
+            onSubmit={onSubmit}
+          >
+            <TextField
+              required label="Descrição"
+              value={description}
+              onChange={event => setDescription(event.target.value)}
+              error={!!validationError[0]}
+              helperText={validationError[0]}
+            />
+            <TextField
+              label="Telefone"
+              value={phoneNumber}
+              onChange={event => setPhoneNumber(phoneMask(event.target.value))}
+            />
             <Button
               variant="contained"
               color="primary"
               style={{ marginTop: 20, marginBottom: 10 }}
+              type="submit"
             >
               Criar
             </Button>
