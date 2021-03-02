@@ -11,6 +11,7 @@ import {
   TableCell,
   TableBody,
   Snackbar,
+  DialogActions,
   Box,
   Tooltip,
   Fab,
@@ -19,44 +20,50 @@ import {
   DialogContent,
   TextField,
   Button,
-  IconButton,
-  DialogActions,
-  MenuItem
+  MenuItem,
+  IconButton
 } from '@material-ui/core'
 
-import { NoSim, Add, Edit, Delete, FlashOnOutlined } from '@material-ui/icons'
+import { phoneMask } from './src/utils/masks'
+
+import { NoSim, Add, Edit, Delete } from '@material-ui/icons'
+
 import { Alert } from '@material-ui/lab'
-import { api } from '../services/api'
-import { phoneMask } from '../utils/masks'
+
+import { api } from './src/services/api'
 
 export const Professionals = ({ toggleLoading, isVisible, loading }) => {
   const [data, setData] = useState([])
+  const [professionalTypes, setProfessionalTypes] = useState([])
   const [error, setError] = useState(false)
+  const [validationError, setValidationError] = useState(false)
   const [errorAlert, setErrorAlert] = useState('')
   const [successAlert, setSuccessAlert] = useState('')
-  const [validationError, setValidationError] = useState(false)
 
-  const [showCreateProfessionalType, setShowCreateProfessionalType] = useState(false)
-  const [editProfessionalType, setEditProfessionalType] = useState()
-  const [deleteProfessionalType, setDeleteProfessionalType] = useState()
+  const [showCreateProfessional, setShowCreateProfessional] = useState(false)
+  const [editProfessional, setEditProfessional] = useState()
+  const [deleteProfessional, setDeleteProfessional] = useState()
 
-  const [description, setDescription] = useState('')
+  const [name, setName] = useState('')
   const [phoneNumber, setPhoneNumber] = useState('')
+  const [email, setEmail] = useState('')
+  const [professionalType, setProfessionalType] = useState('')
   const [situation, setSituation] = useState()
 
   async function loadData() {
     toggleLoading(true)
 
     try {
-      const response = await api.get('professional-type', { timeout: 10000 })
+      const response = await api.get('professional', { timeout: 10000 })
+      const professionalTypeResponse = await api.get('professional-type', { timeout: 10000 })
 
       setData(response.data)
+      setProfessionalTypes(professionalTypeResponse.data)
       toggleLoading(false)
       setErrorAlert('')
-      setError(false)
     } catch(err) {
       setError(true)
-      setErrorAlert('Não foi possível carregar os tipos de profissionais')
+      setErrorAlert('Não foi possível carregar os dados')
       toggleLoading(false)
     }
   }
@@ -66,26 +73,34 @@ export const Professionals = ({ toggleLoading, isVisible, loading }) => {
   async function onSubmit(event) {
     event.preventDefault()
     
-    const professionalTypeSchema = Yup.object().shape({
-      description: Yup
+    const professionalSchema = Yup.object().shape({
+      name: Yup
         .string()
-        .required('Preencha este campo'),
+        .required(),
       phoneNumber: Yup
+        .string(),
+      email: Yup
         .string()
+        .required(),
+      professionalType: Yup
+        .string()
+        .required(),
     })
 
-    const professionalType = {
-      description,
-      phoneNumber
+    const professional = {
+      name,
+      phoneNumber,
+      email,
+      professionalType
     }
 
     try {
-      await professionalTypeSchema.validate(professionalType, { abortEarly: false })
+      await professionalSchema.validate(professional, { abortEarly: false })
 
-      await api.post('professional-type', { ...professionalType, situation: true })
+      await api.post('professional', { ...professional, situation: true })
 
       loadData()
-      setShowCreateProfessionalType(false)
+      setShowCreateProfessional(false)
       setValidationError(false)
       setErrorAlert('')
     } catch(err) {
@@ -100,30 +115,38 @@ export const Professionals = ({ toggleLoading, isVisible, loading }) => {
   async function onSubmitEditing(event) {
     event.preventDefault()
     
-    const professionalTypeSchema = Yup.object().shape({
-      description: Yup
+    const professionalSchema = Yup.object().shape({
+      name: Yup
         .string()
         .required(),
       phoneNumber: Yup
         .string(),
+      email: Yup
+        .string()
+        .required(),
+      professionalType: Yup
+        .string()
+        .required(),
       situation: Yup
         .boolean()
         .required()
     })
 
-    const professionalType = {
-      description,
+    const professional = {
+      name,
       phoneNumber,
+      email,
+      professionalType,
       situation
     }
 
     try {
-      await professionalTypeSchema.validate(professionalType, { abortEarly: false })
+      await professionalSchema.validate(professional, { abortEarly: false })
 
-      await api.put(`professional-type/${editProfessionalType.id}`, { ...professionalType, situation })
+      await api.put(`professional/${editProfessional.id}`, { ...professional, situation })
 
       loadData()
-      setEditProfessionalType(false)
+      setEditProfessional(false)
       setValidationError(false)
       setErrorAlert('')
     } catch(err) {
@@ -135,17 +158,17 @@ export const Professionals = ({ toggleLoading, isVisible, loading }) => {
     }
   }
 
-  async function handleDeleteProfessionalType() {
+  async function handleDeleteProfessional() {
     try {
-      await api.delete(`professional-type/${deleteProfessionalType.id}`)
+      await api.delete(`professional/${deleteProfessional.id}`)
 
-      setSuccessAlert(`${deleteProfessionalType.description} deletado com sucesso`)
+      setSuccessAlert(`${deleteProfessional.description} deletado com sucesso`)
       loadData()
-      setDeleteProfessionalType()
+      setDeleteProfessional()
       setErrorAlert('')
     } catch(err) {
       setErrorAlert('Não foi possível deletar o tipo de profissional')
-      setDeleteProfessionalType()
+      setDeleteProfessional()
     }
   }
   
@@ -161,8 +184,10 @@ export const Professionals = ({ toggleLoading, isVisible, loading }) => {
             <TableHead>
               <TableRow>
                 <TableCell>ID</TableCell>
-                <TableCell align="center">Descrição</TableCell>
+                <TableCell align="center">Nome</TableCell>
                 <TableCell align="center">Telefone</TableCell>
+                <TableCell align="center">Email</TableCell>
+                <TableCell align="center">Tipo de profissional</TableCell>
                 <TableCell align="center">Situação</TableCell>
                 <TableCell align="center" />
                 <TableCell align="center" />
@@ -170,27 +195,32 @@ export const Professionals = ({ toggleLoading, isVisible, loading }) => {
             </TableHead>
             <TableBody>
               {data.map(item => (
-                <TableRow key={item.id}>
+                <TableRow tabIndex={-1} key={item.id}>
                   <TableCell component="th" scope="row">
                     {item.id}
                   </TableCell>
-                  <TableCell align="center">{item.description}</TableCell>
+                  <TableCell align="center">{item.name}</TableCell>
                   <TableCell align="center">{item.phoneNumber}</TableCell>
+                  <TableCell align="center">{item.email}</TableCell>
+                  <TableCell align="center">
+                    <Button variant="outlined" color="primary">{item.professionalType}</Button>
+                  </TableCell>
                   <TableCell align="center">
                     <Card variant="outlined" style={{ width: 'fit-content', padding: '5px 15px' }}>{item.situation ? 'OK' : 'Irregular'}</Card>
                   </TableCell>
                   <TableCell>
                     <IconButton onClick={() => {
-                      setEditProfessionalType({ id: item.id, item })
-                      setDescription(item.description)
+                      setEditProfessional({ id: item.id, item })
+                      setName(item.name)
                       setPhoneNumber(item.phoneNumber)
+                      setEmail(item.email)
                       setSituation(item.situation)
                     }}>
                       <Edit />
                     </IconButton>
                   </TableCell>
                   <TableCell>
-                    <IconButton onClick={() => setDeleteProfessionalType({ id: item.id, description: item.description })}>
+                    <IconButton onClick={() => setDeleteProfessional({ id: item.id, name: item.name })}>
                       <Delete />
                     </IconButton>
                   </TableCell>
@@ -220,29 +250,24 @@ export const Professionals = ({ toggleLoading, isVisible, loading }) => {
           {successAlert}
         </Alert>
       </Snackbar>
-      <Tooltip title="Criar tipo de profissional" aria-label="criar">
+      <Tooltip title="Criar profissional" aria-label="criar">
         <Fab
           color="primary"
           style={{ position: 'absolute', bottom: 50, right: 50 }}
-          onClick={() => {
-            setShowCreateProfessionalType(true)
-            setDescription('')
-            setPhoneNumber('')
-            setSituation('')
-          }}
+          onClick={() => setShowCreateProfessional(true)}
         >
           <Add />
         </Fab>
       </Tooltip>
       <Dialog
-        open={showCreateProfessionalType}
+        open={showCreateProfessional}
         onClose={() => {
-          setShowCreateProfessionalType(false)
+          setShowCreateProfessional(false)
           setValidationError(false)
         }}
         aria-labelledby="criar-tipo-de-profissional"
       >
-        <DialogTitle>Criar tipo de profissional</DialogTitle>
+        <DialogTitle>Criar profissional</DialogTitle>
         <DialogContent style={{ width: 250 }}>
           <form
             noValidate
@@ -251,9 +276,9 @@ export const Professionals = ({ toggleLoading, isVisible, loading }) => {
             onSubmit={onSubmit}
           >
             <TextField
-              required label="Descrição"
-              value={description}
-              onChange={event => setDescription(event.target.value)}
+              required label="Nome"
+              value={name}
+              onChange={event => setName(event.target.value)}
               error={validationError}
             />
             <TextField
@@ -261,11 +286,32 @@ export const Professionals = ({ toggleLoading, isVisible, loading }) => {
               value={phoneNumber}
               onChange={event => setPhoneNumber(phoneMask(event.target.value))}
             />
+            <TextField
+              required
+              label="Email"
+              value={email}
+              onChange={event => setEmail(event.target.value)}
+              error={validationError}
+            />
+            <TextField
+              required
+              select
+              label="Tipo de profissional"
+              variant="outlined"
+              style={{ marginTop: 20 }}
+              onChange={event => setProfessionalType(event.target.value)}
+              error={validationError}
+            >
+              {professionalTypes.map(professionalType => (
+                <MenuItem key={professionalType.id} value={professionalType.description}>
+                  {professionalType.description}
+                </MenuItem>
+              ))}
+            </TextField>
             <Button
               variant="contained"
               color="primary"
               style={{ marginTop: 20, marginBottom: 10 }}
-              type="submit"
             >
               Criar
             </Button>
@@ -273,14 +319,14 @@ export const Professionals = ({ toggleLoading, isVisible, loading }) => {
         </DialogContent>
       </Dialog>
       <Dialog
-        open={editProfessionalType}
+        open={editProfessional}
         onClose={() => {
-          setEditProfessionalType()
+          setEditProfessional()
           setValidationError(false)
         }}
         aria-labelledby="criar-tipo-de-profissional"
       >
-        <DialogTitle>Editar tipo de profissional</DialogTitle>
+        <DialogTitle>Editar profissional</DialogTitle>
         <DialogContent style={{ width: 250 }}>
           <form
             noValidate
@@ -290,9 +336,9 @@ export const Professionals = ({ toggleLoading, isVisible, loading }) => {
           >
             <TextField
               required
-              label="Descrição"
-              value={description}
-              onChange={event => setDescription(event.target.value)}
+              label="Nome"
+              value={name}
+              onChange={event => setName(event.target.value)}
               error={validationError}
             />
             <TextField
@@ -300,6 +346,27 @@ export const Professionals = ({ toggleLoading, isVisible, loading }) => {
               value={phoneNumber}
               onChange={event => setPhoneNumber(phoneMask(event.target.value))}
             />
+            <TextField
+              label="Email"
+              value={email}
+              onChange={event => setEmail(event.target.value)}
+              error={validationError}
+            />
+            <TextField
+              required
+              select
+              label="Tipo de profissional"
+              variant="outlined"
+              style={{ marginTop: 20 }}
+              onChange={event => setProfessionalType(event.target.value)}
+              error={validationError}
+            >
+              {professionalTypes.map(professionalType => (
+                <MenuItem key={professionalType.id} value={professionalType.description}>
+                  {professionalType.description}
+                </MenuItem>
+              ))}
+            </TextField>
             <TextField
               required
               select
@@ -328,16 +395,16 @@ export const Professionals = ({ toggleLoading, isVisible, loading }) => {
         </DialogContent>
       </Dialog>
       <Dialog
-        open={!!deleteProfessionalType}
-        onClose={() => setDeleteProfessionalType()}
+        open={!!deleteProfessional}
+        onClose={() => setDeleteProfessional()}
         aria-labelledby="criar-tipo-de-profissional"
       >
-        <DialogTitle>Deseja deletar {deleteProfessionalType?.description}?</DialogTitle>
+        <DialogTitle>Deseja deletar {deleteProfessional?.name}?</DialogTitle>
         <DialogActions>
-          <Button autoFocus variant="outlined" onClick={() => setDeleteProfessionalType()}>
+          <Button autoFocus variant="outlined" onClick={() => setDeleteProfessional()}>
             Cancelar
           </Button>
-          <Button color="secondary" onClick={handleDeleteProfessionalType}>
+          <Button color="secondary" onClick={handleDeleteProfessional}>
             Deletar
           </Button>
         </DialogActions>

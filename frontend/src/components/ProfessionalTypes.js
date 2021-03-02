@@ -34,7 +34,7 @@ export const ProfessionalTypes = ({ toggleLoading, isVisible, loading }) => {
   const [error, setError] = useState(false)
   const [errorAlert, setErrorAlert] = useState('')
   const [successAlert, setSuccessAlert] = useState('')
-  const [validationError, setValidationError] = useState([])
+  const [validationError, setValidationError] = useState(false)
 
   const [showCreateProfessionalType, setShowCreateProfessionalType] = useState(false)
   const [editProfessionalType, setEditProfessionalType] = useState()
@@ -42,7 +42,7 @@ export const ProfessionalTypes = ({ toggleLoading, isVisible, loading }) => {
 
   const [description, setDescription] = useState('')
   const [phoneNumber, setPhoneNumber] = useState('')
-  const [situation, setSituation] = useState()
+  const [situation, setSituation] = useState('')
 
   async function loadData() {
     toggleLoading(true)
@@ -86,11 +86,11 @@ export const ProfessionalTypes = ({ toggleLoading, isVisible, loading }) => {
 
       loadData()
       setShowCreateProfessionalType(false)
-      setValidationError([])
+      setValidationError(false)
       setErrorAlert('')
     } catch(err) {
       if (err instanceof Yup.ValidationError) {
-        setValidationError(err.errors)
+        setValidationError(true)
       } else {
         setErrorAlert('Não foi possível criar tipo de profissional')
       }
@@ -107,7 +107,7 @@ export const ProfessionalTypes = ({ toggleLoading, isVisible, loading }) => {
       phoneNumber: Yup
         .string(),
       situation: Yup
-        .boolean()
+        .string()
         .required()
     })
 
@@ -120,15 +120,21 @@ export const ProfessionalTypes = ({ toggleLoading, isVisible, loading }) => {
     try {
       await professionalTypeSchema.validate(professionalType, { abortEarly: false })
 
-      await api.put(`professional-type/${editProfessionalType.id}`, { ...professionalType, situation })
+      await api.put(`professional-type/${editProfessionalType.id}`, {
+        ...professionalType,
+        situation: situation === 'OK' ? true : false
+      })
 
       loadData()
       setEditProfessionalType(false)
-      setValidationError([])
+      setValidationError(false)
       setErrorAlert('')
+      setDescription()
+      setPhoneNumber()
+      setSituation('OK')
     } catch(err) {
       if (err instanceof Yup.ValidationError) {
-        setValidationError(err.errors)
+        setValidationError(true)
       } else {
         setErrorAlert('Não foi possível editar tipo de profissional')
       }
@@ -184,7 +190,7 @@ export const ProfessionalTypes = ({ toggleLoading, isVisible, loading }) => {
                       setEditProfessionalType({ id: item.id, item })
                       setDescription(item.description)
                       setPhoneNumber(item.phoneNumber)
-                      setSituation(item.situation)
+                      setSituation(item.situation ? 'OK' : 'Irregular')
                     }}>
                       <Edit />
                     </IconButton>
@@ -236,7 +242,10 @@ export const ProfessionalTypes = ({ toggleLoading, isVisible, loading }) => {
       </Tooltip>
       <Dialog
         open={showCreateProfessionalType}
-        onClose={() => setShowCreateProfessionalType(false)}
+        onClose={() => {
+          setShowCreateProfessionalType(false)
+          setValidationError(false)
+        }}
         aria-labelledby="criar-tipo-de-profissional"
       >
         <DialogTitle>Criar tipo de profissional</DialogTitle>
@@ -251,8 +260,7 @@ export const ProfessionalTypes = ({ toggleLoading, isVisible, loading }) => {
               required label="Descrição"
               value={description}
               onChange={event => setDescription(event.target.value)}
-              error={!!validationError[0]}
-              helperText={validationError[0]}
+              error={validationError}
             />
             <TextField
               label="Telefone"
@@ -272,7 +280,10 @@ export const ProfessionalTypes = ({ toggleLoading, isVisible, loading }) => {
       </Dialog>
       <Dialog
         open={editProfessionalType}
-        onClose={() => setEditProfessionalType()}
+        onClose={() => {
+          setEditProfessionalType()
+          setValidationError(false)
+        }}
         aria-labelledby="criar-tipo-de-profissional"
       >
         <DialogTitle>Editar tipo de profissional</DialogTitle>
@@ -288,7 +299,7 @@ export const ProfessionalTypes = ({ toggleLoading, isVisible, loading }) => {
               label="Descrição"
               value={description}
               onChange={event => setDescription(event.target.value)}
-              error={!!validationError}
+              error={validationError}
             />
             <TextField
               label="Telefone"
@@ -302,12 +313,13 @@ export const ProfessionalTypes = ({ toggleLoading, isVisible, loading }) => {
               variant="outlined"
               style={{ marginTop: 20 }}
               onChange={event => setSituation(event.target.value)}
-              error={!!validationError}
+              error={validationError}
+              value={situation}
             >
-              <MenuItem value={true}>
+              <MenuItem value='OK'>
                 OK
               </MenuItem>
-              <MenuItem value={false}>
+              <MenuItem value='Irregular'>
                 Irregular
               </MenuItem>
             </TextField>
