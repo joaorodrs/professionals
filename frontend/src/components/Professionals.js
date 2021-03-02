@@ -18,7 +18,8 @@ import {
   DialogContent,
   TextField,
   Button,
-  MenuItem
+  MenuItem,
+  Checkbox
 } from '@material-ui/core'
 
 import { phoneMask } from '../utils/masks'
@@ -29,8 +30,6 @@ import { Alert } from '@material-ui/lab'
 
 import { api } from '../services/api'
 
-import formatString from 'format-string-by-pattern';
-
 export const Professionals = ({ toggleLoading, isVisible, loading }) => {
   const [data, setData] = useState([])
   const [professionalTypes, setProfessionalTypes] = useState([])
@@ -39,17 +38,10 @@ export const Professionals = ({ toggleLoading, isVisible, loading }) => {
 
   const [showCreateProfessional, setShowCreateProfessional] = useState(false)
 
+  const [name, setName] = useState('')
   const [phoneNumber, setPhoneNumber] = useState('')
-
-  function format(mask) {
-    return {
-      format: value => {
-        if (!value) return ''
-        return formatString(mask, value)
-      },
-      parse: fieldValue => fieldValue.replace(/[^\d]/g, ''),
-    }
-  }
+  const [email, setEmail] = useState('')
+  const [professionalType, setProfessionalType] = useState('')
 
   async function loadData() {
     toggleLoading(true)
@@ -85,6 +77,11 @@ export const Professionals = ({ toggleLoading, isVisible, loading }) => {
           <Table aria-label="customized table">
             <TableHead>
               <TableRow>
+                <TableCell>
+                  <Checkbox
+                    checked={false}
+                  />
+                </TableCell>
                 <TableCell>ID</TableCell>
                 <TableCell align="center">Nome</TableCell>
                 <TableCell align="center">Telefone</TableCell>
@@ -95,14 +92,21 @@ export const Professionals = ({ toggleLoading, isVisible, loading }) => {
             </TableHead>
             <TableBody>
               {data.map(item => (
-                <TableRow key={item.id}>
+                <TableRow tabIndex={-1} key={item.id}>
+                  <TableCell padding="checkbox" align="center">
+                    <Checkbox
+                      checked={true}
+                    />
+                  </TableCell>
                   <TableCell component="th" scope="row">
                     {item.id}
                   </TableCell>
                   <TableCell align="center">{item.name}</TableCell>
                   <TableCell align="center">{item.phoneNumber}</TableCell>
                   <TableCell align="center">{item.email}</TableCell>
-                  <TableCell align="center">{item.professionalType}</TableCell>
+                  <TableCell align="center">
+                    <Button>{item.professionalType}</Button>
+                  </TableCell>
                   <TableCell align="center">{item.situation ? 'OK' : 'Irregular'}</TableCell>
                 </TableRow>
               ))}
@@ -137,11 +141,15 @@ export const Professionals = ({ toggleLoading, isVisible, loading }) => {
         <DialogTitle>Criar profissional</DialogTitle>
         <DialogContent style={{ width: 250 }}>
           <form noValidate style={{ display: 'flex', flexDirection: 'column' }} autoComplete="off">
-            <TextField required label="Nome" />
+            <TextField
+              required label="Nome"
+              value={name}
+              onChange={event => setName(event.target.value)}
+            />
             <TextField
               label="Telefone"
               value={phoneNumber}
-              onChange={e => setPhoneNumber(phoneMask(e.target.value))}
+              onChange={event => setPhoneNumber(phoneMask(event.target.value))}
             />
             <TextField required label="Email" />
             <TextField
@@ -150,6 +158,7 @@ export const Professionals = ({ toggleLoading, isVisible, loading }) => {
               label="Tipo de profissional"
               variant="outlined"
               style={{ marginTop: 20 }}
+              onChange={event => setProfessionalType(event.target.value)}
             >
               {professionalTypes.map(professionalType => (
                 <MenuItem key={professionalType.id} value={professionalType.description}>
