@@ -19,7 +19,8 @@ import {
   DialogContent,
   TextField,
   Button,
-  IconButton
+  IconButton,
+  DialogActions
 } from '@material-ui/core'
 
 import { NoSim, Add, Edit, Delete } from '@material-ui/icons'
@@ -31,9 +32,11 @@ export const ProfessionalTypes = ({ toggleLoading, isVisible, loading }) => {
   const [data, setData] = useState([])
   const [error, setError] = useState(false)
   const [errorAlert, setErrorAlert] = useState('')
+  const [successAlert, setSuccessAlert] = useState('')
   const [validationError, setValidationError] = useState([])
 
   const [showCreateProfessionalType, setShowCreateProfessionalType] = useState(false)
+  const [deleteProfessionalType, setDeleteProfessionalType] = useState()
 
   const [description, setDescription] = useState('')
   const [phoneNumber, setPhoneNumber] = useState('')
@@ -87,6 +90,19 @@ export const ProfessionalTypes = ({ toggleLoading, isVisible, loading }) => {
       }
     }
   }
+
+  async function handleDeleteProfessionalType() {
+    try {
+      await api.delete(`professional-type/${deleteProfessionalType.id}`)
+
+      setSuccessAlert(`${deleteProfessionalType.description} deletado com sucesso`)
+      loadData()
+      setDeleteProfessionalType()
+    } catch(err) {
+      setErrorAlert('Não foi possível deletar o tipo de profissional')
+      setDeleteProfessionalType()
+    }
+  }
   
   return (
     <>
@@ -119,12 +135,12 @@ export const ProfessionalTypes = ({ toggleLoading, isVisible, loading }) => {
                     <Card variant="outlined" style={{ width: 'fit-content', padding: '5px 15px' }}>{item.situation ? 'OK' : 'Irregular'}</Card>
                   </TableCell>
                   <TableCell>
-                    <IconButton>
+                    <IconButton >
                       <Edit />
                     </IconButton>
                   </TableCell>
                   <TableCell>
-                    <IconButton>
+                    <IconButton onClick={() => setDeleteProfessionalType({ id: item.id, description: item.description })}>
                       <Delete />
                     </IconButton>
                   </TableCell>
@@ -142,6 +158,16 @@ export const ProfessionalTypes = ({ toggleLoading, isVisible, loading }) => {
           variant="filled"
         >
           {errorAlert}
+        </Alert>
+      </Snackbar>
+      <Snackbar open={!!successAlert} autoHideDuration={5000} onClose={() => setSuccessAlert('')}>
+        <Alert
+          onClose={() => setSuccessAlert('')}
+          severity="success"
+          elevation={6}
+          variant="filled"
+        >
+          {successAlert}
         </Alert>
       </Snackbar>
       <Tooltip title="Criar tipo de profissional" aria-label="criar">
@@ -188,6 +214,21 @@ export const ProfessionalTypes = ({ toggleLoading, isVisible, loading }) => {
             </Button>
           </form>
         </DialogContent>
+      </Dialog>
+      <Dialog
+        open={!!deleteProfessionalType}
+        onClose={() => setDeleteProfessionalType()}
+        aria-labelledby="criar-tipo-de-profissional"
+      >
+        <DialogTitle>Deseja deletar {deleteProfessionalType?.description}?</DialogTitle>
+        <DialogActions>
+          <Button autoFocus variant="outlined" onClick={() => setDeleteProfessionalType()}>
+            Cancelar
+          </Button>
+          <Button onClick={handleDeleteProfessionalType}>
+            Confirmar
+          </Button>
+        </DialogActions>
       </Dialog>
     </>
   )
