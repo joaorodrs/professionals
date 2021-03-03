@@ -9,7 +9,6 @@
   - [Back-end](#htp-back-end)
   - [Front-end](#htp-front-end)
 - [To implement](#to-implement)
-- [Additional](#additional)
 
 <h1 id="about">❓ About</h1>
 
@@ -58,7 +57,7 @@ The project was done in the boilerplate of CRA (Create React App), and uses this
 
 First of all, you'll need to clone the repo and go to the project file. You can do this using this command line:
 ```
-~$ git clone git@github.com:joaorodrs/professional-finding.git
+~$ git clone git@github.com:joaorodrs/professional-finding.git // or https://github.com/joaorodrs/professional-finding
 
 ~$ cd professional-finding
 ```
@@ -111,11 +110,6 @@ The front-end will be running in http://localhost:3000
   - [ ] Make JWT in the back-end or Firebase Auth in the front-end
   - [ ] Make users CRUD
 - [ ] Make a search feature to both professionals and professional types
-
-<h1 id="additional">❗ Additional</h1>
-
-- You can see the back-end API docs right here
-- This project is part of a hiring process by Maxxi Data and all the requirements can be found here
 
 ---
 
